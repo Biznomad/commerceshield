@@ -156,7 +156,7 @@ export default function Graph({
     const label = new SpriteText(n.label);
     label.color = colors[n.type];
     label.textHeight = 3;
-    label.position.y = 7;
+    label.position.y = replaying ? 5 : 7;
     label.backgroundColor = "rgba(16,33,57,0.7)";
     label.padding = 1.5;
     label.borderRadius = 2;
@@ -280,6 +280,7 @@ export default function Graph({
             nodeVal={(n: any) =>
               n.type === "account" ? 6 : n.type === "claim" ? 4 : 2.5
             }
+            nodeRelSize={replaying ? 2.4 : 4}
             nodeResolution={16}
             nodeThreeObject={nodeLabel}
             nodeThreeObjectExtend={true}
