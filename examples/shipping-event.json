@@ -1,0 +1,4 @@
+{
+  "externalId": "CLM-EXAMPLE-001", "kind": "shipping_claim", "account": "Example Customer", "order": "ORD-EXAMPLE", "addressToken": "addr_example", "deviceToken": "device_example", "amount": 245,
+  "signals": {"claims30d": 3, "accountAgeDays": 7, "daysSinceDelivery": 2, "refundRatio": 0.6, "linkedAccounts": 1, "orderValue": 245}, "evidence": ["customer_statement"]
+}

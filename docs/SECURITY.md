@@ -1,19 +1,30 @@
-# Security and privacy baseline
+# Security and release gates
 
-**Design requirements, not claims of implemented controls.**
+This is a local, observation-only foundation. It is not certified or ready for real merchant/customer data.
 
-- Multi-tenant isolation: tenant_id on all records; enforce PostgreSQL row-level security and tenant-scoped authorization at API and worker boundaries. Test cross-tenant access.
-- Identity: OAuth for Shopify; short-lived credentials, service-to-service authentication, MFA for staff, RBAC and privileged-action review.
-- Secrets: managed secret storage, rotation, no credentials in Git, least-privilege service accounts.
-- Transport/storage: TLS, encryption at rest, restricted database access, secure backups.
-- Webhooks: verify Shopify HMAC using raw request body; timestamp/replay defenses where supported; deduplicate event IDs.
-- Payments: do not store full card numbers, CVV or bank credentials. Use payment-provider tokens and dispute signals.
-- Cross-merchant intelligence: do not expose one merchant's customers or raw events to another. Require clear contracts, permitted purposes, minimization, pseudonymous tokens, retention and deletion policies; obtain legal/privacy review before launch.
-- Privacy: data inventory, notices, lawful basis, consumer-rights workflow, deletion and retention schedules, and Shopify privacy compliance webhooks as applicable.
-- Risk fairness: avoid protected traits and unjustified proxies; require explanations, appeals, and human review for consequential decisions.
-- Software supply chain: dependency scanning, secret scanning, SAST, signed releases, branch protection, code review and incident response runbooks.
-- Logging: immutable security/decision audit trails, no sensitive data in logs, alerting and access reviews.
-- Compliance: review applicable state privacy laws, payment contracts, and whether SurePath shipping protection is regulated insurance in each jurisdiction. Licensed partner is not a blanket compliance exemption.
+## Implemented controls
 
-## Release gates
-Threat model approved; isolation penetration tests; webhook spoofing tests; privacy review; restore drill; incident response rehearsal; shadow-mode evaluation and false-positive thresholds.
+- Server binds loopback. Non-demo provisioning requires an administrator bearer token. Workspace keys are random 256-bit tokens stored only as SHA-256 hashes; API responses never expose stored hashes.
+- Authentication resolves tenant server-side. All case, graph, audit and mutation queries are scoped to that tenant; strict schemas reject caller tenant IDs. Automated isolation tests cover foreign reads and writes.
+- Strict allowlisted event/rule schemas, bounded payloads and numbers, prepared SQL, no executable expressions, IP rate limit, origin restrictions, no CORS, no sensitive request logging.
+- Transactions atomically persist assessment/case/audit and outcome/audit. Idempotency is tenant-scoped. Existing outcomes cannot be overwritten through the API; historical policies stay attached to assessments.
+- Only reported evidence identifiers and pseudonymous address/device tokens are expected. No document upload, raw payment fields or external enforcement endpoints exist. Human reasoning is required for outcomes.
+
+## Demo boundary
+
+`npm run dev` enables fictional demo mode. It exposes known demo credentials and permits local workspace creation. Use only fictional data, keep loopback binding, and never publish the development port. `npm start` defaults to demo disabled, but previously seeded keys remain valid in the same database. Use a fresh database for non-demo evaluation. Existing-demo revocation and key rotation are not implemented.
+
+Browser keys live in session storage and are accessible to same-origin scripts; sign out clears the tab's key. They are workspace operator credentials, not per-person identities. Reviewer names are self-declared. The Google Fonts stylesheet is an optional external typography request; self-host it before privacy-sensitive deployments. Local audit rows are append-only through the API but not tamper-proof against database owners.
+
+## Required before real data or deployment
+
+| Area       | Missing release gate                                                                                        |
+| ---------- | ----------------------------------------------------------------------------------------------------------- |
+| Identity   | Staff authentication, MFA, RBAC, key rotation/revocation, admin separation                                  |
+| Database   | PostgreSQL RLS, migrations, least privilege, encryption, backups/restore drill                              |
+| Ingestion  | Signed source webhooks/OAuth, durable queues, replay defenses, time-window aggregates                       |
+| Privacy    | Data inventory, consent/purpose, retention/deletion, consumer-rights workflow, evidence access controls     |
+| Operations | TLS/reverse proxy, deployment host allowlist, monitoring, incident response, load limits and pagination     |
+| Decisions  | Human label quality, fairness/false-positive calibration, appeals, outcome amendments and review governance |
+
+Cross-merchant graphs are not implemented and must never be inferred from shared demo labels. Production deployment needs a threat model and security/privacy review, as well as domain-specific coverage/compliance review. These are release gates, not implemented claims.
