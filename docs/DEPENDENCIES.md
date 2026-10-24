@@ -24,4 +24,4 @@ No pretrained/untrained model is presented as fraud intelligence. Rule weights a
 
 ## Runtime stack
 
-Fastify, better-sqlite3, Zod, React, React DOM, Vite and TypeScript are permissively licensed (MIT or Apache-2.0 as declared by their package metadata); Lucide icons use ISC. npm retains their package license files in dependencies. Review lockfile/license inventories before redistributing compiled artifacts. Commerce Shield's own source distribution terms are not yet selected; private-repository access is not a public source license.
+Fastify, better-sqlite3, Zod, React, React DOM, Vite and TypeScript are permissively licensed (MIT or Apache-2.0 as declared by their package metadata); Lucide icons use ISC. npm retains their package license files in dependencies. Review lockfile/license inventories before redistributing compiled artifacts. Commerce Shield's own source distribution terms are not yet selected; public repository visibility does not grant a source redistribution license.

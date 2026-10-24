@@ -11,8 +11,6 @@ Requires Node.js 22.12+ and npm. SQLite is embedded. No external database or API
 ```sh
 git clone https://github.com/Biznomad/commerceshield.git
 cd commerceshield
-# Until the draft PR is merged:
-git switch feat/fraud-foundation
 npm ci
 npm run dev
 ```
