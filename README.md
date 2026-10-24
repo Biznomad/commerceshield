@@ -21,7 +21,7 @@ Open **http://127.0.0.1:5173** and select **Shipping demo** or **Refunds demo**.
 
 ## Try the working graph
 
-1. Open **Shipping demo → Relationship map** and follow the four-step walkthrough.
+1. Open **Shipping demo → Relationship map**. An eight-stage graph replay plays automatically with captions; use Pause, Play, Restart, or Show full map.
 2. Search **device_7c2**. Morgan Lee, Alex Rivera, and Sam Chen share this fictional device and **addr_shared_018**, connecting three orders and claims.
 3. Select a node and open a linked case. Inspect contributions, observed values, policy version and missing evidence.
 4. Record a human outcome with your name and reasoning. Open **Integrate → Load audit trail** to see the saved review.

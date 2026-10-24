@@ -629,7 +629,11 @@ function App() {
                         </div>
                       }
                     >
-                      <Graph data={graph} onCase={setSelected} />
+                      <Graph
+                        data={graph}
+                        onCase={setSelected}
+                        autoPlay={token.startsWith("cs_demo_")}
+                      />
                     </Suspense>
                   </section>
                   <p className="footnote">

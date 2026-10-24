@@ -1904,3 +1904,91 @@ td:nth-child(3) {
     align-self: flex-end;
   }
 }
+
+.replay-controls {
+  position: absolute;
+  z-index: 4;
+  right: 18px;
+  top: 60px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: #19314be8;
+  border: 1px solid #3b557566;
+  border-radius: 7px;
+  padding: 5px;
+}
+.replay-controls button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  padding: 7px;
+  color: #b8d3ee;
+  border-radius: 4px;
+}
+.replay-controls .replay-play {
+  background: #346bd6;
+  color: #fff;
+}
+.replay-caption {
+  position: absolute;
+  z-index: 3;
+  left: 18px;
+  right: 18px;
+  bottom: 80px;
+  max-width: 510px;
+  background: #152e49ef;
+  border: 1px solid #49688888;
+  border-radius: 8px;
+  padding: 16px 18px;
+  pointer-events: none;
+}
+.replay-caption small {
+  font-size: 8px;
+  letter-spacing: 1.5px;
+  color: #7fb9eb;
+}
+.replay-caption strong {
+  display: block;
+  font-size: 15px;
+  color: #d8eaff;
+  margin: 8px 0;
+}
+.replay-caption p {
+  font-size: 11px;
+  line-height: 1.8;
+  color: #a2bbd5;
+}
+.replay-progress {
+  display: flex;
+  gap: 5px;
+  margin-top: 12px;
+}
+.replay-progress span {
+  height: 3px;
+  flex: 1;
+  background: #344c65;
+  border-radius: 3px;
+}
+.replay-progress .revealed {
+  background: #72bdeb;
+}
+@media (max-width: 800px) {
+  .replay-controls {
+    top: 102px;
+    left: 18px;
+    right: auto;
+  }
+  .replay-caption {
+    bottom: 80px;
+    padding: 12px;
+  }
+  .replay-caption p {
+    font-size: 10px;
+  }
+}
+
+.cinema .replay-caption {
+  bottom: 110px;
+}

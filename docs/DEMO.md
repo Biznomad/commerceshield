@@ -50,3 +50,9 @@ Nodes deduplicate by type/identifier within a workspace. Each carries linked cas
 Reset fits the network; cinema expands it. The accessible node list opens the same node panel without pointer navigation or WebGL.
 
 For a fresh demo without deleting data, stop the server and run `DATABASE_PATH=./data/fresh-demo.db npm run dev`. Never reset an operator's database without authorization.
+
+## Automatic replay
+
+Opening Relationship map in either fictional demo starts an eight-stage replay automatically. Every 3.5 seconds it reveals the next part of the sample cluster, with a caption and camera framing: Morgan → order → claim → address → Alex branch → Sam branch → shared device → complete workspace. Edges appear only when both connected nodes have been revealed. The sequence illustrates relationships, not the actual chronology of events.
+
+Use Pause to hold a stage, Play demo to resume, Restart to begin again, or Show full map to skip to exploration. At the final stage playback stops and the full graph remains available; Play demo starts it again. Selecting a node exits replay for case inspection. Cinema retains the controls. Reduced-motion preferences disable animated camera transitions while preserving the step-by-step explanation.

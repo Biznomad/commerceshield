@@ -1,8 +1,16 @@
-import { Component, useEffect, useRef, useState, type ReactNode } from "react";
+import {
+  Component,
+  useEffect,
+  useRef,
+  useState,
+  useMemo,
+  type ReactNode,
+} from "react";
 import ForceGraph3D from "react-force-graph-3d";
 import SpriteText from "three-spritetext";
 import { Object3D } from "three";
-import { Search, Maximize2, RotateCcw } from "lucide-react";
+import { buildDemoReplay, linkIsVisible } from "./replay";
+import { Play, Pause, Search, Maximize2, RotateCcw } from "lucide-react";
 class GraphBoundary extends Component<
   { children: ReactNode },
   { failed: boolean }
@@ -32,9 +40,11 @@ const colors: Record<string, string> = {
 export default function Graph({
   data,
   onCase,
+  autoPlay = false,
 }: {
   data: { nodes: any[]; links: any[] };
   onCase: (id: string) => void;
+  autoPlay?: boolean;
 }) {
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const container = useRef<HTMLDivElement>(null);
@@ -43,6 +53,70 @@ export default function Graph({
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<any>(null);
   const [cinema, setCinema] = useState(false);
+  const steps = useMemo(() => buildDemoReplay(data.nodes), [data]);
+  const [replaying, setReplaying] = useState(autoPlay);
+  const [playing, setPlaying] = useState(autoPlay);
+  const [step, setStep] = useState(0);
+  const [run, setRun] = useState(0);
+  const visible = useMemo(
+    () =>
+      new Set(
+        replaying && steps.length
+          ? steps[Math.min(step, steps.length - 1)].nodeIds
+          : data.nodes.map((n) => n.id),
+      ),
+    [data, replaying, steps, step],
+  );
+  useEffect(() => {
+    if (!playing || !replaying || !steps.length) return;
+    if (step >= steps.length - 1) {
+      setPlaying(false);
+      return;
+    }
+    const timer = window.setTimeout(() => setStep((s) => s + 1), 3500);
+    return () => window.clearTimeout(timer);
+  }, [playing, replaying, step, steps, run]);
+  useEffect(() => {
+    setStep(0);
+    setReplaying(autoPlay);
+    setPlaying(autoPlay);
+  }, [data, autoPlay]);
+  useEffect(() => {
+    if (!replaying || !steps.length) return;
+    const timer = window.setTimeout(() => {
+      const shown = data.nodes.filter(
+        (n) => visible.has(n.id) && Number.isFinite(n.x),
+      );
+      if (!shown.length) return;
+      const center = { x: 0, y: 0, z: 0 };
+      for (const n of shown) {
+        center.x += n.x / shown.length;
+        center.y += n.y / shown.length;
+        center.z += n.z / shown.length;
+      }
+      const spread = Math.max(
+        ...shown.map((n) =>
+          Math.hypot(n.x - center.x, n.y - center.y, n.z - center.z),
+        ),
+      );
+      graph.current?.cameraPosition(
+        { x: center.x, y: center.y, z: center.z + Math.max(180, spread * 2.7) },
+        center,
+        reduced ? 0 : 900,
+      );
+    }, 80);
+    return () => window.clearTimeout(timer);
+  }, [replaying, visible, data, steps, reduced, run]);
+  function restart() {
+    setSelected(null);
+    setQuery("");
+    setStep(0);
+    setReplaying(true);
+    setPlaying(true);
+    setRun((r) => r + 1);
+    graph.current?.zoomToFit(reduced ? 0 : 600, 70);
+  }
+
   useEffect(() => {
     const obs = new ResizeObserver((entries) =>
       setWidth(entries[0].contentRect.width),
@@ -61,6 +135,8 @@ export default function Graph({
     return () => window.removeEventListener("keydown", handler);
   }, []);
   function focus(node: any) {
+    setPlaying(false);
+    setReplaying(false);
     setSelected(node);
     const distance = 220;
     const norm = Math.hypot(node.x ?? 0, node.y ?? 0, node.z ?? 0) || 1;
@@ -75,7 +151,8 @@ export default function Graph({
     );
   }
   const nodeLabel = (n: any) => {
-    if (n.type !== "account" && n.caseIds.length < 2) return new Object3D();
+    if (!replaying && n.type !== "account" && n.caseIds.length < 2)
+      return new Object3D();
     const label = new SpriteText(n.label);
     label.color = colors[n.type];
     label.textHeight = 3;
@@ -141,6 +218,48 @@ export default function Graph({
           )}
         </div>
       )}
+      {steps.length > 0 && (
+        <div className="replay-controls">
+          <button
+            className="replay-play"
+            aria-label={playing ? "Pause graph replay" : "Play graph replay"}
+            onClick={() => {
+              if (playing) setPlaying(false);
+              else if (!replaying || step === steps.length - 1) restart();
+              else setPlaying(true);
+            }}
+          >
+            {playing ? <Pause size={15} /> : <Play size={15} />}{" "}
+            {playing ? "Pause" : "Play demo"}
+          </button>
+          <button aria-label="Restart graph replay" onClick={restart}>
+            <RotateCcw size={14} />
+          </button>
+          <button
+            onClick={() => {
+              setPlaying(false);
+              setReplaying(false);
+            }}
+          >
+            Show full map
+          </button>
+        </div>
+      )}
+      {replaying && steps.length > 0 && (
+        <div className="replay-caption" role="status" aria-live="polite">
+          <small>
+            RELATIONSHIP REPLAY · {step + 1} / {steps.length}
+            {!playing && step < steps.length - 1 ? " · PAUSED" : ""}
+          </small>
+          <strong>{steps[step].title}</strong>
+          <p>{steps[step].detail}</p>
+          <div className="replay-progress">
+            {steps.map((s, i) => (
+              <span key={s.title} className={i <= step ? "revealed" : ""} />
+            ))}
+          </div>
+        </div>
+      )}
       {!data.nodes.length ? (
         <div className="graph-empty">
           Your relationship map starts with your first event.
@@ -150,8 +269,10 @@ export default function Graph({
           <ForceGraph3D
             ref={graph}
             width={width}
-            height={cinema ? window.innerHeight - 140 : 490}
+            height={cinema ? window.innerHeight - 30 : 490}
             graphData={data}
+            nodeVisibility={(n: any) => visible.has(n.id)}
+            linkVisibility={(l: any) => linkIsVisible(l, visible)}
             backgroundColor="#102139"
             showNavInfo={false}
             nodeColor={(n: any) => colors[n.type]}
@@ -162,7 +283,8 @@ export default function Graph({
             nodeResolution={16}
             nodeThreeObject={nodeLabel}
             nodeThreeObjectExtend={true}
-            cooldownTicks={reduced ? 1 : 160}
+            warmupTicks={100}
+            cooldownTicks={replaying || reduced ? 1 : 160}
             linkColor={(l: any) =>
               selected &&
               ((l.source.id ?? l.source) === selected.id ||
@@ -216,13 +338,15 @@ export default function Graph({
         <span>Drag to orbit · scroll to zoom</span>
       </div>
       <details className="node-directory">
-        <summary>Accessible node list · {data.nodes.length} nodes</summary>
+        <summary>Accessible node list · {visible.size} nodes</summary>
         <div>
-          {found.map((n) => (
-            <button key={n.id} onClick={() => focus(n)}>
-              {n.type}: {n.label} ({n.caseIds.length} cases)
-            </button>
-          ))}
+          {found
+            .filter((n) => visible.has(n.id))
+            .map((n) => (
+              <button key={n.id} onClick={() => focus(n)}>
+                {n.type}: {n.label} ({n.caseIds.length} cases)
+              </button>
+            ))}
         </div>
       </details>
     </div>

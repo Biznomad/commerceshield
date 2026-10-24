@@ -4,7 +4,7 @@ Validated locally on 2026-10-24 with Node.js 22.22.3.
 
 ## Automated
 
-`npm run check`: 14 passing API/domain tests, TypeScript check and Vite production build. Coverage includes explainable/capped scores, review thresholds, missing evidence, authentication, foreign tenant reads/writes, graph/audit isolation, idempotent retries/conflicts, policy snapshots, immutable outcomes, strict validation, admin provisioning, demo boundaries, origin rejection and database-reopen persistence.
+`npm run check`: 16 passing API/domain tests, TypeScript check and Vite production build. Coverage includes explainable/capped scores, review thresholds, missing evidence, authentication, foreign tenant reads/writes, graph/audit isolation, idempotent retries/conflicts, policy snapshots, immutable outcomes, strict validation, admin provisioning, demo boundaries, origin rejection and database-reopen persistence.
 
 `npm audit --audit-level=high`: zero reported vulnerabilities at validation time. This is dependency advisory evidence, not a security certification. GitHub Actions runs installation, tests, typecheck, build and the audit for pushes/PRs.
 
@@ -17,3 +17,5 @@ The built app was started separately on loopback port 3002 with a fresh fictiona
 ## Limits of this evidence
 
 This does not establish detection accuracy, scalability, penetration resistance or regulatory compliance. WebGL behavior and accessibility need broader browser/assistive-technology coverage. See SECURITY.md and ROADMAP.md for real-data release gates. Existing source-provided aggregate signals and evidence-presence flags are not independently verified by this foundation.
+
+Automatic replay adds two tests verifying cumulative stages over both seeded niches, final graph completeness, string/object edge endpoints and hidden-link filtering. Browser validation checks automatic start, stage progression, pause, resume and cinema controls.
